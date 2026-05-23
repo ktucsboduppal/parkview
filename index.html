@@ -455,60 +455,73 @@ async function loadFromSheets(){
     if(!d.ok)throw new Error(d.error);
     // Merge sheet data → only replace if sheet has newer data
     if(d.profiles&&d.profiles.length){
-      // Preserve local state before overwriting
-      const localPins={};
-      const localVehicles={};
-      const localVacant={};
-      const localActive={};
-      P.forEach(p=>{
-        if(p.pin)localPins[p.id]=p.pin;
-        if(p.vehicles&&p.vehicles.length)localVehicles[p.id]=p.vehicles;
-        localVacant[p.id]=p.isVacant;
-        localActive[p.id]=p.isActive;
+      // Save all local state before any merge
+      const localById={};
+      P.forEach(p=>{ localById[p.id]=p; });
+
+      // Validate Sheets data quality:
+      // If more than half the profiles have no name or empty isActive → Sheets data is bad, skip
+      const validProfiles=d.profiles.filter(p=>p.name&&p.name.trim()!=='');
+      const activeProfiles=d.profiles.filter(p=>{
+        const a=p.isActive;
+        return a===true||a===1||String(a||'').toUpperCase()==='TRUE'||a===''||a===null||a===undefined;
       });
+      const sheetsDataGood = validProfiles.length >= d.profiles.length*0.8 &&
+                              activeProfiles.length >= d.profiles.length*0.5;
 
-      P=d.profiles;
-      P.forEach(p=>{
-        // Fix booleans — Sheets returns "TRUE"/"FALSE" strings or actual booleans
-        const rawVacant=p.isVacant;
-        const rawActive=p.isActive;
-        p.isVacant = rawVacant===true||String(rawVacant).toUpperCase()==='TRUE';
-        p.isActive = rawActive===true||String(rawActive).toUpperCase()==='TRUE';
-
-        // Sanity check: if Sheets says vacant but local says occupied — trust local
-        // (Sheets data may be from a broken sync)
-        if(p.isVacant && p.id in localVacant && !localVacant[p.id]){
-          p.isVacant=false;
-        }
-        if(!p.isActive && p.id in localActive && localActive[p.id]){
-          p.isActive=true;
-        }
-
-        // Fix roles
-        if(typeof p.roles==='string'){try{p.roles=JSON.parse(p.roles)}catch{p.roles=[]}}
-        if(!Array.isArray(p.roles))p.roles=[];
-
-        // Restore PIN (never sent over wire)
-        if(!p.pin&&localPins[p.id])p.pin=localPins[p.id];
-
-        // Reattach vehicles — prefer Sheets vehicles if available, else keep local
+      if(!sheetsDataGood){
+        // Sheets data looks corrupt — only merge vehicles, keep all local profile data
+        console.warn('ParkView: Sheets profile data looks incomplete, skipping profile overwrite');
         if(d.vehicles&&d.vehicles.length){
-          const sheetVehicles=(d.vehicles||[]).filter(v=>String(v.profileId)===String(p.id)).map(v=>({
-            id:v.id,type:v.type,plate:v.plate||'',make:v.make||'',model:v.model||'',
-            colour:v.colour||'',status:v.status||'active',photo:v.photoUrl||null
-          }));
-          // Only replace local vehicles if Sheets has data for this profile
-          p.vehicles=sheetVehicles.length>0?sheetVehicles:(localVehicles[p.id]||[]);
-        } else {
-          // Sheets has no vehicles tab data — keep local
-          p.vehicles=localVehicles[p.id]||[];
+          P.forEach(p=>{
+            const sv=(d.vehicles||[]).filter(v=>String(v.profileId)===String(p.id)).map(v=>({
+              id:v.id,type:v.type,plate:v.plate||'',make:v.make||'',
+              model:v.model||'',colour:v.colour||'',status:v.status||'active'
+            }));
+            if(sv.length>0)p.vehicles=sv;
+          });
         }
-      });
-
-      // After merge: if local had more profiles (e.g. Sheets missing some) — add them back
-      const sheetIds=new Set(P.map(p=>p.id));
-      const missing=Object.keys(localVehicles).filter(id=>!sheetIds.has(id));
-      // (profiles only go missing if Sheets was wiped — unlikely, skip for now)
+      } else {
+        // Sheets data looks good — do the merge
+        d.profiles.forEach(sp=>{
+          const local=localById[sp.id];
+          if(!local){
+            // New profile from Sheets — add it
+            sp.isVacant=parseBool(sp.isVacant,false);
+            sp.isActive=parseBool(sp.isActive,true);
+            if(typeof sp.roles==='string'){try{sp.roles=JSON.parse(sp.roles)}catch{sp.roles=[]}}
+            if(!Array.isArray(sp.roles))sp.roles=[];
+            sp.vehicles=[];
+            P.push(sp);
+            return;
+          }
+          // Merge: keep local PIN and vehicles, update everything else from Sheets
+          const sheetVacant=parseBool(sp.isVacant,local.isVacant);
+          const sheetActive=parseBool(sp.isActive,local.isActive);
+          // Only update boolean if Sheets has explicit TRUE/FALSE (not empty)
+          const hasVacant=sp.isVacant!==''&&sp.isVacant!==null&&sp.isVacant!==undefined;
+          const hasActive=sp.isActive!==''&&sp.isActive!==null&&sp.isActive!==undefined;
+          local.isVacant = hasVacant ? sheetVacant : local.isVacant;
+          local.isActive = hasActive ? sheetActive : local.isActive;
+          local.name     = sp.name||local.name;
+          local.phone    = sp.phone||local.phone;
+          local.type     = sp.type||local.type;
+          local.movedOutAt=sp.movedOutAt||local.movedOutAt||'';
+          if(sp.roles){
+            let r=sp.roles;
+            if(typeof r==='string'){try{r=JSON.parse(r)}catch{r=[]}}
+            if(Array.isArray(r)&&r.length>0)local.roles=r;
+          }
+          // Reattach vehicles from Sheets if available
+          if(d.vehicles&&d.vehicles.length){
+            const sv=(d.vehicles||[]).filter(v=>String(v.profileId)===String(local.id)).map(v=>({
+              id:v.id,type:v.type,plate:v.plate||'',make:v.make||'',
+              model:v.model||'',colour:v.colour||'',status:v.status||'active'
+            }));
+            if(sv.length>0)local.vehicles=sv;
+          }
+        });
+      }
     }
     // Fix vehicles booleans if returned separately
     if(d.vehicles&&d.vehicles.length){
