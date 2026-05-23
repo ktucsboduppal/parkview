@@ -352,20 +352,35 @@ let LK=gls('pv5_lck',{});
 let RC=gls('pv5_rc',[]); // roll call sessions
 
 // ── Normalize profile data (fix string booleans & roles from any source) ──
+function parseBool(v, defaultVal){
+  // Handles: true/false booleans, 'TRUE'/'FALSE'/'true'/'false' strings,
+  // empty string, null, undefined, 0/1 numbers
+  if(v===true||v===1)return true;
+  if(v===false||v===0)return false;
+  if(v===null||v===undefined||v==='')return defaultVal;
+  const s=String(v).toUpperCase().trim();
+  if(s==='TRUE')return true;
+  if(s==='FALSE')return false;
+  return defaultVal;
+}
+
 function normalizeProfiles(){
   P.forEach(p=>{
-    // Fix boolean strings that Sheets may have written
-    if(typeof p.isVacant !== 'boolean')
-      p.isVacant = p.isVacant===true||String(p.isVacant).toUpperCase()==='TRUE';
-    if(typeof p.isActive !== 'boolean')
-      p.isActive = p.isActive===true||String(p.isActive).toUpperCase()==='TRUE';
-    // Fix roles stored as JSON string
+    // isVacant: default false (occupied)
+    p.isVacant = parseBool(p.isVacant, false);
+    // isActive: default true (active resident)
+    p.isActive = parseBool(p.isActive, true);
+    // Force active if no movedOutAt date
+    if(!p.movedOutAt||p.movedOutAt===''||p.movedOutAt==='0')p.isActive=true;
+    // Force not vacant if moved out date is empty  
+    if(!p.movedOutAt||p.movedOutAt===''||p.movedOutAt==='0')p.isVacant=false;
+    // Fix roles
     if(typeof p.roles==='string'){try{p.roles=JSON.parse(p.roles)}catch{p.roles=[]}}
     if(!Array.isArray(p.roles))p.roles=[];
-    // Ensure vehicles array exists
+    // Ensure vehicles array
     if(!Array.isArray(p.vehicles))p.vehicles=[];
-    // Default isActive to true if not explicitly moved out
-    if(p.isActive===false&&!p.movedOutAt)p.isActive=true;
+    // Security profile type
+    if(p.type==='security'&&!p.roles.includes('security'))p.roles=['security'];
   });
 }
 // Run normalization immediately after loading from localStorage
@@ -2333,6 +2348,7 @@ function showPinErr(msg){const e=document.getElementById('pErr');if(e){e.textCon
 let _landingStep = 1; // 1=welcome, 2=role select, 3=flat select (resident), 4=pin
 
 function showLanding(){
+  normalizeProfiles();
   cRole=null;cP=null;
   document.getElementById('nav').innerHTML='';
   document.getElementById('con').innerHTML='';
@@ -2381,6 +2397,7 @@ function rWelcome(){
 }
 
 function showRoleSelect(){
+  normalizeProfiles();
   const opts=[
     {id:'resident',icon:'ti-home',col:'#15803D',bg:'#DCFCE7',name:'Resident / Owner / Tenant',desc:'Manage your vehicles, visitors & concerns'},
     {id:'security',icon:'ti-shield-lock',col:'#6D28D9',bg:'#F3E8FF',name:'Security Guard',desc:'Roll call, vehicle lookup, visitor passes'},
@@ -2415,6 +2432,7 @@ function onRoleSelect(role){
 }
 
 function showFlatSelect(){
+  normalizeProfiles(); // ensure booleans are clean before filtering
   const res=P.filter(p=>p.type!=='security'&&p.isActive&&!p.isVacant).sort((a,b)=>a.flatNo.localeCompare(b.flatNo,undefined,{numeric:true}));
   document.getElementById('con').innerHTML=`
     <div style="padding:20px">
