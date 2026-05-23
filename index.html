@@ -375,7 +375,7 @@ function weekStart(offset=0){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.
 
 // ═══════════════ GOOGLE SHEETS SYNC ═══════════════
 let _syncing=false, _lastSync=0, _syncErr=false;
-const SYNC_INTERVAL=30000; // sync every 30 seconds
+const SYNC_INTERVAL=30000; // kept for reference, periodic pull disabled
 
 async function syncToSheets(){
   if(typeof SCRIPT_URL==='undefined'||!SCRIPT_URL||_syncing)return;
@@ -558,7 +558,7 @@ function hideSyncBanner(){
 }
 
 // Periodic sync
-setInterval(()=>{if(typeof SCRIPT_URL!=='undefined'&&SCRIPT_URL&&navigator.onLine)loadFromSheets()},SYNC_INTERVAL);
+// Periodic pull removed — sync happens on login and after local changes only
 
 // ═══════════════ AUTO-EXPIRE VISITORS
 function expireVS(){VS.forEach(v=>{if(v.status==='active'&&xp(v.exp))v.status='expired'});save()}
@@ -609,7 +609,7 @@ const NAV={
   admin:[{id:'dashboard',icon:'ti-chart-bar',lbl:'Dashboard'},{id:'registry',icon:'ti-building-estate',lbl:'Registry'},{id:'announcements',icon:'ti-news',lbl:'Announce'},{id:'approvals',icon:'ti-checklist',lbl:'Approvals',pip:true},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'}],
   moderator:[{id:'dashboard',icon:'ti-chart-pie',lbl:'Dashboard'},{id:'registry',icon:'ti-building-estate',lbl:'Registry'},{id:'announcements',icon:'ti-news',lbl:'Announce'},{id:'approvals',icon:'ti-checklist',lbl:'Approvals',pip:true},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'}],
   security:[{id:'dashboard',icon:'ti-layout-dashboard',lbl:'Dashboard'},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'},{id:'search',icon:'ti-scan',lbl:'Search'},{id:'visitors',icon:'ti-ticket',lbl:'Visitors'},{id:'announcements',icon:'ti-news',lbl:'Announce'}],
-  resident:[{id:'dashboard',icon:'ti-layout-dashboard',lbl:'Dashboard'},{id:'myvehicles',icon:'ti-car-garage',lbl:'My Vehicles'},{id:'search',icon:'ti-scan',lbl:'Search'},{id:'visitors',icon:'ti-ticket',lbl:'Visitors'},{id:'announcements',icon:'ti-news',lbl:'Announce'}]
+  resident:[{id:'dashboard',icon:'ti-layout-dashboard',lbl:'Dashboard'},{id:'myvehicles',icon:'ti-car-garage',lbl:'My Vehicles'},{id:'visitors',icon:'ti-ticket',lbl:'Visitors'},{id:'concerns',icon:'ti-help-hexagon',lbl:'Concerns'},{id:'announcements',icon:'ti-news',lbl:'Announce'}]
 };
 
 // ── BACK BUTTON ──
@@ -903,7 +903,14 @@ function rDashSecurity(){
     ${rcToday?`<div class="alt agn"><i class="ti ti-circle-check" style="flex-shrink:0"></i><div><strong>Roll call done today at ${fdt(rcToday.closedAt||rcToday.t).split(' ')[1]}</strong><br><span style="font-size:12px">${rcToday.entries.length} vehicles scanned · ${unkFound} unknown found</span></div></div>`:`<div class="alt ${inWindow?'ard':'aam'}"><i class="ti ti-clipboard-list" style="flex-shrink:0"></i><div><strong>${inWindow?'Time for roll call! (9 PM – 11 PM window)':'Roll call not done today'}</strong><br><span style="font-size:12px">Tap Roll Call tab to start</span></div>${inWindow?`<button class="btn bsm brd" onclick="switchTab('rollcall')" style="flex-shrink:0;margin-left:auto">Start</button>`:''}</div>`}
   </div>
   ${activeVS.length?`<div class="card"><div class="shd"><div class="stl">Active Visitor Passes (${activeVS.length})</div><button class="btn bsm bacc" onclick="switchTab('visitors')">View</button></div>${activeVS.slice(0,3).map(v=>`<div class="pcard" style="padding:10px 12px;margin-bottom:6px"><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--blue2)">${v.plate}</div><div style="font-size:12px;color:var(--txt3)">Flat ${v.flatNo} · Exp: ${fdt(v.exp)}</div></div>`).join('')}</div>`:''}
-  ${openUK.length?`<div class="card"><div class="shd"><div class="stl" style="color:var(--red)">Unregistered Vehicles (${openUK.length})</div><button class="btn bsm brd" onclick="openUnkModal('')">Log new</button></div>${openUK.slice(0,5).map(u=>`<div class="rc-unk" style="margin-bottom:6px"><i class="ti ti-alert-triangle" style="font-size:18px;color:var(--red);flex-shrink:0"></i><div style="flex:1"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red)">${u.plate}</div><div style="font-size:11px;color:var(--txt4)">${u.location||'Location not set'} · ${ago(u.t)}</div></div><button class="btn bsm bwa" onclick="openWA('${u.plate}','${u.location||''}','${u.note||''}')"><i class="ti ti-brand-whatsapp"></i></button><button class="btn bsm bgrn" onclick="closeUnk('${u.id}')"><i class="ti ti-check"></i></button></div>`).join('')}</div>`:''}`;
+  ${openUK.length?`<div class="card"><div class="shd"><div class="stl" style="color:var(--red)">Unregistered Vehicles (${openUK.length})</div><button class="btn bsm brd" onclick="openUnkModal('')">Log new</button></div>${openUK.slice(0,5).map(u=>`<div class="rc-unk" style="margin-bottom:6px"><i class="ti ti-alert-triangle" style="font-size:18px;color:var(--red);flex-shrink:0"></i><div style="flex:1"><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red)">${u.plate}</div><div style="font-size:11px;color:var(--txt4)">${u.location||'Location not set'} · ${ago(u.t)}${Date.now()-u.t>86400000?' · <strong style="color:var(--red)">⚠ TOW ELIGIBLE</strong>':''}</div></div><button class="btn bsm bwa" onclick="openWA('${u.plate}','${u.location||''}','${u.note||''}')"><i class="ti ti-brand-whatsapp"></i></button><button class="btn bsm bgrn" onclick="closeUnk('${u.id}')"><i class="ti ti-check"></i></button></div>`).join('')}</div>`:''}
+  ${(()=>{
+    const vByF={};VI.filter(x=>x.status==='open').forEach(x=>{vByF[x.flatNo]=(vByF[x.flatNo]||0)+1});
+    const top3=Object.entries(vByF).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    if(!top3.length)return '';
+    return '<div class="card"><div class="stl" style="margin-bottom:10px;color:var(--red)">Top Violation Flats</div>'
+      +top3.map(([flat,cnt])=>{const fp=P.find(x=>x.flatNo===flat);return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px solid var(--bdr)"><div class="ftag occ">'+flat+'</div><div style="flex:1"><div style="font-size:13px;font-weight:600">'+(fp?fp.name:'Unknown')+'</div></div><span class="badge bd">'+cnt+' open</span></div>';}).join('')+'</div>';
+  })()}`;
 }
 
 // ── RESIDENT DASHBOARD ──
@@ -1005,7 +1012,7 @@ function rReg(){
   return `<div class="shd"><div class="stl">${FLATS.length} flats · ${occ} occupied</div>${cRole==='admin'?`<button class="btn bsm bacc" onclick="addPModal()"><i class="ti ti-user-plus"></i> Add</button>`:''}</div>
   ${FLATS.map(f=>{
     const p=P.find(x=>x.flatNo===f);
-    if(!p||p.isVacant)return `<div class="rc" style="cursor:default"><div class="ftag vac">${f}</div><div class="rname" style="color:var(--org);font-weight:700">Vacant</div>${cRole==='admin'?`<button class="btn bsm bacc" onclick="addPModal('${f}');event.stopPropagation()"><i class="ti ti-user-plus"></i></button>`:''}</div>`;
+    if(!p||p.isVacant)return `<div class="rc" style="cursor:default"><div class="ftag vac">${f}</div><div class="rname" style="color:var(--org);font-weight:700">${p?p.name+' (moved out)':'Vacant'}</div>${cRole==='admin'?`<button class="btn bsm bacc" onclick="addPModal('${f}');event.stopPropagation()"><i class="ti ti-user-plus"></i></button>`:''}</div>`;
     const pV=p.vehicles.filter(v=>v.status==='pending').length;
     const hasVio=VI.some(x=>x.flatNo===f&&x.status==='open');
     const isE=expId===p.id;
@@ -1347,10 +1354,24 @@ function subPass(){
 }
 function confExpire(id){
   const v=VS.find(x=>x.id===id);if(!v)return;
-  showSheet(`<div class="hdl"></div><div class="mtit"><i class="ti ti-logout" style="color:var(--red)"></i> Expire Pass</div>
-    <div class="cbox"><div class="ctit">${v.plate}</div><div class="cdsc">Visiting Flat ${v.flatNo} · Expires ${fdt(v.exp)}</div></div>
-    <button class="btn bfull brd" onclick="doExpire('${id}');closeM()"><i class="ti ti-check"></i> Yes, expire now</button>
-    <button class="btn bfull" onclick="closeM()">Cancel</button>`);
+  showSheet('<div class="hdl"></div><div class="mtit"><i class="ti ti-ticket" style="color:var(--blue2)"></i> Visitor Pass — '+v.plate+'</div>'
+    +'<div class="cbox"><div class="ctit">Flat '+v.flatNo+' &middot; '+v.plate+'</div><div class="cdsc">Expires: '+fdt(v.exp)+'</div></div>'
+    +'<div class="stl" style="margin-bottom:10px">Extend by</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">'
+    +'<button class="btn bsm bacc" onclick="extendPass(\''+id+'\',2)">+2 hrs</button>'
+    +'<button class="btn bsm bacc" onclick="extendPass(\''+id+'\',4)">+4 hrs</button>'
+    +'<button class="btn bsm bacc" onclick="extendPass(\''+id+'\',8)">+8 hrs</button>'
+    +'<button class="btn bsm bacc" onclick="extendPass(\''+id+'\',24)">+24 hrs</button>'
+    +'<button class="btn bsm bacc" onclick="extendPass(\''+id+'\',48)">+48 hrs</button>'
+    +'</div>'
+    +'<div class="sep"></div>'
+    +'<button class="btn bfull brd" style="margin-top:8px" onclick="doExpire(\''+id+'\');closeM()"><i class="ti ti-logout"></i> Expire now</button>'
+    +'<button class="btn bfull" onclick="closeM()">Cancel</button>');
+}
+function extendPass(id,hrs){
+  const v=VS.find(x=>x.id===id);if(!v)return;
+  v.exp=Math.max(v.exp,Date.now())+hrs*3600000;
+  audit('extend_pass',v.plate+' +'+hrs+'h');save();closeM();render();toast('Pass extended by '+hrs+' hours','ok');
 }
 function doExpire(id){const v=VS.find(x=>x.id===id);if(v){v.status='expired';audit('expire_pass',v.plate);save();render();toast('Pass expired','am')}}
 
@@ -1436,24 +1457,40 @@ function rConResident(){
   const open=mine.filter(x=>x.status==='open');
   const closed=mine.filter(x=>x.status==='closed');
   const now=Date.now();
-  return `<div class="shd"><div class="stl">${open.length} open</div><button class="btn bsm bacc" onclick="openConMod()"><i class="ti ti-plus"></i> Raise</button></div>
+  return `<div class="shd"><div class="stl">${open.length} open · ${closed.length} resolved</div><button class="btn bsm bacc" onclick="openConMod()"><i class="ti ti-plus"></i> Raise concern</button></div>
   ${mine.length===0?`<div class="empty"><i class="ti ti-help-hexagon"></i><p>No concerns raised yet.<br>Tap + to raise a concern.</p></div>`:''}
-  ${open.map(con=>`<div class="ccrd" style="border-color:var(--ambb)">
-    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><div style="flex:1"><div style="font-size:14px;font-weight:700">${con.subject}</div><div style="font-size:11px;color:var(--txt4);margin-top:2px">${fdt(c.t)}</div></div><span class="badge bw">Open</span></div>
-    <div style="font-size:13px;color:var(--txt3);line-height:1.6">${con.description}</div>
-    ${c.assignedTo?`<div style="font-size:11px;color:var(--txt4);margin-top:6px">Assigned to: ${con.assignedTo}</div>`:''}
-  </div>`).join('')}
-  ${closed.length?`<div class="sep"></div><div class="stl" style="margin-bottom:10px">Resolved</div>
+  ${open.length?`<div class="stl" style="margin-bottom:8px;color:var(--amb)">Open</div>
+  ${open.map(con=>`<div class="ccrd" style="border-color:var(--ambb);margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;color:var(--txt)">${con.subject}</div>
+        <div style="font-size:11px;color:var(--txt4);margin-top:3px">${fdt(con.t)}</div>
+      </div>
+      <span class="badge bw">Open</span>
+    </div>
+    <div style="font-size:13px;color:var(--txt3);line-height:1.6;margin-bottom:8px">${con.description}</div>
+    ${con.assignedTo?`<div style="font-size:11px;color:var(--txt4);margin-bottom:6px"><i class="ti ti-user" style="vertical-align:-2px"></i> Assigned to: <strong>${con.assignedTo}</strong></div>`:''}
+  </div>`).join('')}`:''}
+  ${closed.length?`<div class="sep"></div><div class="stl" style="margin-bottom:8px;color:var(--grn)">Resolved</div>
   ${closed.slice().reverse().map(con=>{
-    const canReopen=con.closedAt&&(now-c.closedAt)<24*3600000;
-    const permanent=con.closedAt&&(now-c.closedAt)>=24*3600000;
-    return `<div class="ccrd" style="border-color:#86EFAC;background:var(--grnll)">
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px"><div style="flex:1;font-size:13px;font-weight:700">${con.subject}</div><span class="badge bk">${permanent?'Closed permanently':'Resolved'}</span></div>
-      <div style="font-size:12px;color:var(--txt3)">${con.description}</div>
-      ${c.resolution?`<div style="background:var(--grnl);border:1px solid #86EFAC;border-radius:var(--r);padding:9px 11px;margin-top:8px;font-size:12px;color:var(--grn)"><strong>Resolution:</strong> ${con.resolution}</div>`:''}
-      <div style="font-size:11px;color:var(--txt4);margin-top:6px">Closed by: <strong>${con.closedBy||'—'}</strong> · ${fdt(c.closedAt)}</div>
-      ${canReopen?`<button class="btn bsm bam" style="margin-top:8px" onclick="openReopenMod('${con.id}')"><i class="ti ti-refresh"></i> Reopen (within 24h)</button>`:
-       permanent?`<div style="font-size:11px;color:var(--txt5);margin-top:6px;font-style:italic">Permanently closed — reopen window expired</div>`:''}
+    const canReopen=con.closedAt&&(now-con.closedAt)<24*3600000;
+    const permanent=con.closedAt&&(now-con.closedAt)>=24*3600000;
+    return `<div class="ccrd" style="border-color:#86EFAC;background:var(--grnll);margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;color:var(--txt)">${con.subject}</div>
+          <div style="font-size:11px;color:var(--txt4);margin-top:3px">${fdt(con.t)}</div>
+        </div>
+        <span class="badge bk">${permanent?'Closed permanently':'Resolved'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--txt3);line-height:1.6;margin-bottom:8px">${con.description}</div>
+      ${con.resolution?`<div style="background:var(--grnl);border:1px solid #86EFAC;border-radius:var(--r);padding:9px 11px;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:800;color:var(--grn);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Resolution</div>
+        <div style="font-size:13px;color:var(--grn)">${con.resolution}</div>
+      </div>`:''}
+      ${con.closedBy?`<div style="font-size:11px;color:var(--txt4)">Resolved by <strong>${con.closedBy}</strong> · ${fdt(con.closedAt)}</div>`:''}
+      ${canReopen?`<button class="btn bsm bam" style="margin-top:8px" onclick="openReopenMod('${con.id}')"><i class="ti ti-refresh"></i> Reopen (within 24h)</button>`:''}
+      ${permanent?`<div style="font-size:11px;color:var(--txt5);margin-top:6px;font-style:italic">Reopen window expired — closed permanently</div>`:''}
     </div>`;
   }).join('')}`:''}`;
 }
@@ -1773,7 +1810,7 @@ function subUnk(){
   const at=document.getElementById('uk_as')?.value||'';
   if(!plate&&!desc){alert('Enter plate or description');return}
   UK.push({id:uid(),plate:plate||'UNKNOWN',location:loc,note:desc,assignedTo:at,reportedBy:cP?.name||cRole,t:Date.now(),status:'open'});
-  pushN(`Unknown vehicle: ${plate||'(no plate)'} at ${loc||'parking'}`,['admin','moderator','security'],'unknown');
+  pushN(`⚠ Unknown vehicle spotted: ${plate||'(no plate)'} at ${loc||'parking area'}`,['admin','moderator','security','resident'],'unknown');
   audit('unknown',`${plate} at ${loc}`);save();closeM();render();toast('Logged','am');
 }
 
@@ -1931,7 +1968,7 @@ function rRollCallLive(session){
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <div class="ftag ${flat==='SEC'?'sec':'occ'}">${flat}</div>
         <div style="font-size:13px;font-weight:600;color:var(--txt)">${fp?.name||''}</div>
-        <span style="font-size:11px;color:var(--txt4);margin-left:auto">${fEntries.filter(e=>e.parked===true).length}/${fEntries.length} parked</span>
+        <span id="flat-${session.id}-${flat}" style="font-size:11px;color:var(--txt4);margin-left:auto">${fEntries.filter(e=>e.parked===true).length}/${fEntries.length} parked</span>
       </div>
       ${fEntries.map(e=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1.5px solid var(--bdr)">
         <div style="flex:1">
@@ -1940,7 +1977,7 @@ function rRollCallLive(session){
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:12px;font-weight:600;color:${e.parked===null?'#94A3B8':e.parked?'#15803D':'#DC2626'}">${e.parked===null?'—':e.parked?'Parked':'Not here'}</span>
-          <div class="tgl${e.parked===true?' on':''}" onclick="rcToggleParked('${session.id}','${e.plate}')"></div>
+          <div class="tgl${e.parked===true?' on':''}" data-plate="${e.plate}" onclick="rcToggleParked('${session.id}','${e.plate}')"></div>
         </div>
       </div>`).join('')}
     </div>`;
@@ -1951,7 +1988,34 @@ function rRollCallLive(session){
 function rcToggleParked(sid,plate){
   const s=RC.find(x=>x.id===sid);if(!s)return;
   const e=s.entries.find(x=>x.plate===plate);if(!e)return;
-  e.parked=e.parked!==true;save();render();
+  e.parked=e.parked!==true;
+  save();
+  // Update counters and toggle without full re-render
+  const parked=s.entries.filter(x=>x.parked===true).length;
+  const notParked=s.entries.filter(x=>x.parked===false).length;
+  const unset=s.entries.filter(x=>x.parked===null).length;
+  // Update stat boxes
+  const boxes=document.querySelectorAll('.sbox .sval');
+  if(boxes[0])boxes[0].textContent=parked;
+  if(boxes[1])boxes[1].textContent=notParked;
+  if(boxes[2])boxes[2].textContent=unset;
+  // Update the specific toggle element
+  const tgl=document.querySelector('[data-plate="'+CSS.escape(plate)+'"]');
+  if(tgl){
+    tgl.classList.toggle('on',e.parked===true);
+    const statusEl=tgl.previousElementSibling;
+    if(statusEl){
+      statusEl.textContent=e.parked===null?'—':e.parked?'Parked':'Not here';
+      statusEl.style.color=e.parked===null?'#94A3B8':e.parked?'#15803D':'#DC2626';
+    }
+  }
+  // Update flat parked count
+  const flatKey='flat-'+sid+'-'+s.entries.find(x=>x.plate===plate)?.flatNo;
+  const flatEl=document.getElementById(flatKey);
+  if(flatEl){
+    const flatEntries=s.entries.filter(x=>x.flatNo===s.entries.find(y=>y.plate===plate)?.flatNo);
+    flatEl.textContent=flatEntries.filter(x=>x.parked===true).length+'/'+flatEntries.length+' parked';
+  }
 }
 
 function rcAddUnknown(sid){
@@ -2307,7 +2371,7 @@ function showRoleSelect(){
       <button onclick="showLanding()" style="background:none;border:none;color:var(--txt4);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:20px;font-family:var(--fnt);font-weight:600"><i class="ti ti-arrow-left"></i> Back</button>
       <div style="font-size:20px;font-weight:800;color:var(--txt);margin-bottom:4px">Who are you?</div>
       <div style="font-size:13px;color:var(--txt4);margin-bottom:20px">Select your role to continue</div>
-      ${opts.map(o=>`<div onclick="onRoleSelect('${o.id}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--c1);border:1.5px solid var(--bdr);border-radius:var(--r2);margin-bottom:10px;cursor:pointer;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,.05)" onmousedown="this.style.borderColor='${o.col}'" onmouseup="this.style.borderColor='var(--bdr)'">
+      ${opts.map(o=>`<div onclick="onRoleSelect('${o.id}')" style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--c1);border:1.5px solid var(--bdr);border-radius:var(--r2);margin-bottom:10px;cursor:pointer;transition:border-color .15s;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:rgba(0,0,0,0.1)">
         <div style="width:48px;height:48px;border-radius:14px;background:${o.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <i class="ti ${o.icon}" style="font-size:24px;color:${o.col}"></i>
         </div>
@@ -2452,6 +2516,16 @@ function clearSession(){
 
 // ── Boot: decide what to show ──
 function bootApp(){
+  // Clear any stale open roll call sessions from previous boots
+  let rcChanged=false;
+  RC.forEach(s=>{
+    if(!s.closed){
+      // If session is older than 12 hours and not closed — auto-close it
+      if(Date.now()-s.t>12*3600000){s.closed=true;s.closedAt=s.t+1000;rcChanged=true;}
+    }
+  });
+  if(rcChanged)sls('pv5_rc',RC);
+
   const sess = gls(SESS_KEY, null);
   const rem  = gls(REM_KEY,  null);
 
