@@ -351,6 +351,26 @@ let RL=gls('pv5_rlk',[]);
 let LK=gls('pv5_lck',{});
 let RC=gls('pv5_rc',[]); // roll call sessions
 
+// ── Normalize profile data (fix string booleans & roles from any source) ──
+function normalizeProfiles(){
+  P.forEach(p=>{
+    // Fix boolean strings that Sheets may have written
+    if(typeof p.isVacant !== 'boolean')
+      p.isVacant = p.isVacant===true||String(p.isVacant).toUpperCase()==='TRUE';
+    if(typeof p.isActive !== 'boolean')
+      p.isActive = p.isActive===true||String(p.isActive).toUpperCase()==='TRUE';
+    // Fix roles stored as JSON string
+    if(typeof p.roles==='string'){try{p.roles=JSON.parse(p.roles)}catch{p.roles=[]}}
+    if(!Array.isArray(p.roles))p.roles=[];
+    // Ensure vehicles array exists
+    if(!Array.isArray(p.vehicles))p.vehicles=[];
+    // Default isActive to true if not explicitly moved out
+    if(p.isActive===false&&!p.movedOutAt)p.isActive=true;
+  });
+}
+// Run normalization immediately after loading from localStorage
+normalizeProfiles();
+
 function save(){
   sls('pv5_pro',P);sls('pv5_req',RQ);sls('pv5_unk',UK);sls('pv5_vis',VS);
   sls('pv5_vio',VI);sls('pv5_con',CN);sls('pv5_not',NT);sls('pv5_aud',AU);
@@ -490,6 +510,7 @@ async function loadFromSheets(){
     if(d.rollcall   )RC=d.rollcall;
     save();
     _lastSync=Date.now();_syncErr=false;
+    normalizeProfiles(); // fix any string booleans from Sheets
     save(); // persist merged data to localStorage
     hideSyncBanner();updSyncBadge();
     return true;
@@ -647,7 +668,7 @@ function setRole(r,profile){
   document.getElementById('rLbl').textContent={admin:'Admin',moderator:'Moderator',security:'Security',resident:'Resident'}[r];
   document.getElementById('rIco').className='ti '+RICO[r];
   const rb=document.getElementById('rBtn');if(rb){rb.style.background=RBCOL[r]+'44';rb.style.borderColor=RCOL[r]+'66';rb.style.color=RCOL[r];}
-  startSes();renderNav();render();updDot();chkRCWarn();updSyncBadge();
+  normalizeProfiles();startSes();renderNav();render();updDot();chkRCWarn();updSyncBadge();
 }
 
 function renderNav(){
