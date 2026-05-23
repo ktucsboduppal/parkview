@@ -313,8 +313,8 @@ textarea.fi{resize:vertical;min-height:80px;line-height:1.6}
 
 <script>
 // ═══════════════ CONSTANTS ═══════════════
-const VER='pv5_v2';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbx40qrXee8sNvl3SMGKNB7nZWyUlz1ahHf1Iw5KU7QLEZIUlneA3K9XCfT54wQyawor/exec'; // ← Paste your Apps Script deployment URL here after deploying
+const VER='pv5_v3';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzcp1OO1zUPxnoq4EpOiis7VmJxXe7BcGZB-qzWkGjjHujwcSAGRZLYmUlX0mTF9GF2/exec'; // ← Paste your Apps Script deployment URL here after deploying
 const SCRIPT_KEY='ParkView2024Thirumala'; // ← Must match API_KEY in AppScript
 const FLATS=['101','102','103','104','105','106','107','201','202','203','204','205','206','207','301','302','303','304','305','306','307','401','402','403','404','405','406','407','501','502','503','504','505','506','507','SEC'];
 const VICO={car:'ti-car',bike:'ti-motorbike',cycle:'ti-bike',other:'ti-box'};
@@ -331,7 +331,7 @@ function sls(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
 
 // Version guard
 if(gls('__pv5ver','')!==VER){
-  ['pv5_pro','pv5_req','pv5_unk','pv5_vis','pv5_vio','pv5_con','pv5_not','pv5_aud','pv5_brd','pv5_rlk','pv5_lck','pv5_rc','pv5_session','pv5_remembered',
+  ['pv5_pro','pv5_req','pv5_unk','pv5_vis','pv5_vio','pv5_con','pv5_not','pv5_aud','pv5_brd','pv5_rlk','pv5_lck','pv5_rc','pv5_session','pv5_remembered','__pv5ver',
    'pv4_pro','pv4_req','pv3_profiles','pv3_reqs','pv2_profiles','pv_profiles'].forEach(k=>localStorage.removeItem(k));
   sls('__pv5ver',VER);
 }
@@ -403,7 +403,7 @@ async function syncToSheets(){
       broadcasts:BR,
       rollcall:RC,
     };
-    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
+    const r=await fetch(SCRIPT_URL,{method:'POST',redirect:'follow',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain'}});
     const d=await r.json();
     if(d.ok){_lastSync=Date.now();_syncErr=false;updSyncBadge();}
     else{_syncErr=true;updSyncBadge();}
@@ -415,7 +415,7 @@ async function loadFromSheets(){
   if(typeof SCRIPT_URL==='undefined'||!SCRIPT_URL)return false;
   try{
     showSyncBanner('Syncing data…');
-    const r=await fetch(SCRIPT_URL+'?action=getAll&key='+encodeURIComponent(SCRIPT_KEY));
+    const r=await fetch(SCRIPT_URL+'?action=getAll&key='+encodeURIComponent(SCRIPT_KEY),{redirect:'follow'});
     const d=await r.json();
     if(!d.ok)throw new Error(d.error);
     // Merge sheet data → only replace if sheet has newer data
