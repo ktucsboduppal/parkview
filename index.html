@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ParkView">
 <meta name="theme-color" content="#1E3A8A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>ParkView — Keshava's Thirumala Residency</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -2718,6 +2720,15 @@ setInterval(()=>{
 if(NT.length===0)pushN("Welcome to ParkView — Keshava's Thirumala Residency",['admin','moderator','security','resident'],'info');
 chkOffline();
 bootApp();
+
+// ── Register Service Worker ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=>console.log('ParkView SW registered'))
+      .catch(e=>console.log('SW skip:', e.message));
+  });
+}
 
 // Check roll call warning every minute
 setInterval(()=>{
