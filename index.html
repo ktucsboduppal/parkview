@@ -336,6 +336,15 @@ if(gls('__pv5ver','')!==VER){
   sls('__pv5ver',VER);
 }
 
+// ═══════════════ DEVICE ID ═══════════════
+// Unique per browser — used to scope roll call sessions
+const DEVICE_KEY = 'pv5_deviceId';
+let DEVICE_ID = localStorage.getItem(DEVICE_KEY);
+if(!DEVICE_ID){
+  DEVICE_ID = 'dev_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  localStorage.setItem(DEVICE_KEY, DEVICE_ID);
+}
+
 // ═══════════════ SEED DATA ═══════════════
 let P=gls('pv5_pro',[{"id":"p1","name":"K. Praveen Kumar","flatNo":"101","type":"owner","phone":"9876543210","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v1","type":"car","plate":"TS08JR9855","colour":"Blue","make":"Maruti","model":"XL6","status":"active"},{"id":"v2","type":"bike","plate":"TS08JB7994","colour":"Brown","make":"TVS","model":"Jupiter","status":"active"},{"id":"v3","type":"bike","plate":"G3178","colour":"Black","make":"TVS","model":"XL","status":"active"},{"id":"v4","type":"bike","plate":"TS08FN2695","colour":"Red","make":"TVS","model":"Pep","status":"active"}]},{"id":"p2","name":"Venkatesh","flatNo":"102","type":"tenant","phone":"9876543211","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v5","type":"car","plate":"TS08JP9509","colour":"White","make":"Tata","model":"Punch","status":"active"},{"id":"v6","type":"bike","plate":"TS08HA7999","colour":"Black","make":"Royal Enfield","model":"Bullet 350","status":"active"}]},{"id":"p3","name":"Ramesh","flatNo":"103","type":"owner","phone":"9876543212","roles":["moderator"],"pin":"234567","isVacant":false,"isActive":true,"vehicles":[{"id":"v7","type":"car","plate":"TS08HF3363","colour":"Grey","make":"","model":"","status":"active"},{"id":"v8","type":"bike","plate":"","colour":"White","make":"","model":"","status":"pending"}]},{"id":"p4","name":"Kota Mani","flatNo":"106","type":"owner","phone":"9876543215","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[]},{"id":"p5","name":"B. Ashok","flatNo":"107","type":"owner","phone":"9876543216","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v9","type":"car","plate":"","colour":"White","make":"Govt","model":"","status":"pending"},{"id":"v10","type":"bike","plate":"","colour":"Brown","make":"Honda","model":"Activa","status":"pending"}]},{"id":"p6","name":"Uday","flatNo":"201","type":"owner","phone":"9876543217","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v11","type":"bike","plate":"TS08EA3429","colour":"White","make":"Honda","model":"Activa","status":"active"},{"id":"v12","type":"bike","plate":"TS08P2154","colour":"Black","make":"Royal Enfield","model":"Bullet","status":"active"}]},{"id":"p7","name":"Saichand Potaraju","flatNo":"202","type":"owner","phone":"9876543218","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v13","type":"bike","plate":"TS08EP5799","colour":"Grey","make":"Royal Enfield","model":"","status":"active"}]},{"id":"p8","name":"Batta Bhupal","flatNo":"203","type":"owner","phone":"9876543219","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v14","type":"car","plate":"TS08JB4356","colour":"","make":"","model":"","status":"active"},{"id":"v15","type":"bike","plate":"TS08HF4985","colour":"","make":"","model":"","status":"active"}]},{"id":"p9","name":"Eshwar Naroju","flatNo":"204","type":"owner","phone":"9876543220","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v16","type":"bike","plate":"TS01EA1960","colour":"","make":"","model":"","status":"active"}]},{"id":"p10","name":"Kota Srinivas Reddy","flatNo":"205","type":"owner","phone":"9876543221","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v17","type":"car","plate":"TS08JR1112","colour":"Gray","make":"Hyundai","model":"Creta","status":"active"},{"id":"v18","type":"bike","plate":"","colour":"","make":"Honda","model":"Activa","status":"pending"}]},{"id":"p11","name":"V Shashikala","flatNo":"206","type":"owner","phone":"9876543222","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v19","type":"car","plate":"TS08FX9678","colour":"Grey","make":"Maruti","model":"Swift Dzire","status":"active"},{"id":"v20","type":"bike","plate":"TS08FH8525","colour":"Brown","make":"TVS","model":"Jupiter","status":"active"}]},{"id":"p12","name":"Ranjith Reddy","flatNo":"207","type":"owner","phone":"9876543223","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v21","type":"car","plate":"TS08HY4674","colour":"","make":"","model":"","status":"active"},{"id":"v22","type":"bike","plate":"TS30A0812","colour":"","make":"","model":"","status":"active"},{"id":"v23","type":"bike","plate":"TS08FB3467","colour":"","make":"","model":"","status":"active"},{"id":"v24","type":"bike","plate":"AP07AB9506","colour":"","make":"","model":"","status":"active"},{"id":"v25","type":"bike","plate":"AP29AS9110","colour":"","make":"","model":"","status":"active"}]},{"id":"p13","name":"G Raghavendra Kumar","flatNo":"301","type":"owner","phone":"9876543224","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v26","type":"car","plate":"AP29AE7463","colour":"","make":"","model":"","status":"active"},{"id":"v27","type":"bike","plate":"TS08FD7038","colour":"","make":"","model":"","status":"active"}]},{"id":"p14","name":"Gajendar","flatNo":"305","type":"tenant","phone":"9876543228","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v28","type":"car","plate":"TS01EG6789","colour":"White","make":"Maruti","model":"S-Cross","status":"active"},{"id":"v29","type":"bike","plate":"TS01EG0500","colour":"Blue","make":"TVS","model":"Zest","status":"active"}]},{"id":"p15","name":"Suresh Gadiyaram","flatNo":"306","type":"tenant","phone":"9876543229","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v30","type":"bike","plate":"TSFR086493","colour":"Brown","make":"","model":"","status":"active"},{"id":"v31","type":"bike","plate":"TGAB1730","colour":"Blue","make":"","model":"","status":"active"}]},{"id":"p16","name":"A V Krishna Chaitanya","flatNo":"307","type":"owner","phone":"9876543230","roles":["admin"],"pin":"160712","isVacant":false,"isActive":true,"vehicles":[{"id":"v32","type":"bike","plate":"AP36AK7018","colour":"Grey","make":"TVS","model":"Apache","status":"active"},{"id":"v33","type":"bike","plate":"TS03ED8325","colour":"Red","make":"TVS","model":"Swish","status":"active"},{"id":"v34","type":"cycle","plate":"NA","colour":"","make":"","model":"","status":"active"}]},{"id":"p17","name":"Ramesh C","flatNo":"401","type":"owner","phone":"9876543231","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v35","type":"car","plate":"TS08EL9895","colour":"","make":"","model":"","status":"active"}]},{"id":"p18","name":"Sonti Kishore Kumar Reddy","flatNo":"402","type":"owner","phone":"9876543232","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v36","type":"car","plate":"TS09GF3255","colour":"Red","make":"Tata","model":"Nexon","status":"active"},{"id":"v37","type":"bike","plate":"TS08JP1162","colour":"White","make":"Suzuki","model":"Avenis","status":"active"},{"id":"v38","type":"bike","plate":"TG08S3467","colour":"Red","make":"Hero","model":"Vida","status":"active"}]},{"id":"p19","name":"Sailender Kumar","flatNo":"404","type":"owner","phone":"9876543234","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v39","type":"bike","plate":"","colour":"Red","make":"Hero","model":"Maestro","status":"pending"},{"id":"v40","type":"bike","plate":"","colour":"Orange","make":"Yamaha","model":"FZ-X","status":"pending"}]},{"id":"p20","name":"Bottu Anil Babu","flatNo":"407","type":"owner","phone":"9876543237","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v41","type":"bike","plate":"TS08HC3781","colour":"Black","make":"Honda","model":"Activa","status":"active"},{"id":"v42","type":"cycle","plate":"NA","colour":"","make":"","model":"","status":"active"},{"id":"v43","type":"cycle","plate":"NA","colour":"","make":"","model":"","status":"active"}]},{"id":"p21","name":"S Laxmana Chary","flatNo":"501","type":"owner","phone":"9876543238","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v44","type":"car","plate":"TG07M9006","colour":"Red","make":"Tata","model":"Curvv","status":"active"},{"id":"v45","type":"bike","plate":"AP29AT1454","colour":"Black","make":"Honda","model":"Activa","status":"active"},{"id":"v46","type":"cycle","plate":"NA","colour":"Black","make":"Hero","model":"","status":"active"}]},{"id":"p22","name":"Nikhil Vishwanath","flatNo":"504","type":"owner","phone":"9876543241","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v47","type":"bike","plate":"TS09EP6491","colour":"Black","make":"Honda","model":"Activa","status":"active"}]},{"id":"p23","name":"Bhanuprakash Goud","flatNo":"506","type":"owner","phone":"9876543243","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v48","type":"car","plate":"","colour":"","make":"Tata","model":"Punch","status":"pending"},{"id":"v49","type":"bike","plate":"","colour":"","make":"TVS","model":"Jupiter","status":"pending"},{"id":"v50","type":"cycle","plate":"NA","colour":"","make":"","model":"","status":"active"}]},{"id":"p24","name":"B. Ravi Kishore","flatNo":"507","type":"owner","phone":"9876543244","roles":[],"pin":"000000","isVacant":false,"isActive":true,"vehicles":[{"id":"v51","type":"car","plate":"TS07GE5225","colour":"","make":"","model":"","status":"active"},{"id":"v52","type":"bike","plate":"TS08KD6578","colour":"","make":"","model":"","status":"active"}]},{"id":"p25","name":"Security Guard","flatNo":"SEC","type":"security","phone":"9876540000","roles":["security"],"pin":"123456","isVacant":false,"isActive":true,"vehicles":[]}]);
 
@@ -385,6 +394,24 @@ function normalizeProfiles(){
 }
 // Run normalization immediately after loading from localStorage
 normalizeProfiles();
+
+// ── Close any stale open RC sessions ──
+function normalizeRC(){
+  let changed=false;
+  RC.forEach(s=>{
+    if(!s.closed){
+      const isMyDevice = s.deviceId===DEVICE_ID;
+      const isToday = isSameDay(s.t, Date.now());
+      const tooOld = Date.now()-s.t > 2*3600000;
+      // Auto-close if: not my device, or different day, or older than 2h
+      if(!isMyDevice || !isToday || tooOld){
+        s.closed=true;s.closedAt=s.closedAt||Date.now();changed=true;
+      }
+    }
+  });
+  if(changed)sls('pv5_rc',RC);
+}
+normalizeRC();
 
 function save(){
   sls('pv5_pro',P);sls('pv5_req',RQ);sls('pv5_unk',UK);sls('pv5_vis',VS);
@@ -535,7 +562,7 @@ async function loadFromSheets(){
     if(d.concerns   )CN=d.concerns;
     if(d.unknowns   )UK=d.unknowns;
     if(d.broadcasts )BR=d.broadcasts;
-    if(d.rollcall   )RC=d.rollcall;
+    if(d.rollcall   ){RC=d.rollcall;normalizeRC();}
     save();
     _lastSync=Date.now();_syncErr=false;
     normalizeProfiles(); // fix any string booleans from Sheets
@@ -655,9 +682,9 @@ let cRole='admin',cP=null,tab='dashboard',expId=null,period='30',camCB=null;
 
 // NAV CONFIG
 const NAV={
-  admin:[{id:'dashboard',icon:'ti-chart-bar',lbl:'Dashboard'},{id:'registry',icon:'ti-building-estate',lbl:'Registry'},{id:'announcements',icon:'ti-news',lbl:'Announce'},{id:'approvals',icon:'ti-checklist',lbl:'Approvals',pip:true},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'}],
-  moderator:[{id:'dashboard',icon:'ti-chart-pie',lbl:'Dashboard'},{id:'registry',icon:'ti-building-estate',lbl:'Registry'},{id:'announcements',icon:'ti-news',lbl:'Announce'},{id:'approvals',icon:'ti-checklist',lbl:'Approvals',pip:true},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'}],
-  security:[{id:'dashboard',icon:'ti-layout-dashboard',lbl:'Dashboard'},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'},{id:'search',icon:'ti-scan',lbl:'Search'},{id:'visitors',icon:'ti-ticket',lbl:'Visitors'},{id:'announcements',icon:'ti-news',lbl:'Announce'}],
+  admin:[{id:'dashboard',icon:'ti-chart-bar',lbl:'Dashboard'},{id:'registry',icon:'ti-building-estate',lbl:'Registry'},{id:'concerns',icon:'ti-help-hexagon',lbl:'Concerns'},{id:'approvals',icon:'ti-checklist',lbl:'Approvals',pip:true},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'}],
+  moderator:[{id:'dashboard',icon:'ti-chart-pie',lbl:'Dashboard'},{id:'registry',icon:'ti-building-estate',lbl:'Registry'},{id:'concerns',icon:'ti-help-hexagon',lbl:'Concerns'},{id:'approvals',icon:'ti-checklist',lbl:'Approvals',pip:true},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'}],
+  security:[{id:'dashboard',icon:'ti-layout-dashboard',lbl:'Dashboard'},{id:'rollcall',icon:'ti-clipboard-list',lbl:'Roll Call'},{id:'concerns',icon:'ti-help-hexagon',lbl:'Concerns'},{id:'visitors',icon:'ti-ticket',lbl:'Visitors'},{id:'search',icon:'ti-scan',lbl:'Search'}],
   resident:[{id:'dashboard',icon:'ti-layout-dashboard',lbl:'Dashboard'},{id:'myvehicles',icon:'ti-car-garage',lbl:'My Vehicles'},{id:'visitors',icon:'ti-ticket',lbl:'Visitors'},{id:'concerns',icon:'ti-help-hexagon',lbl:'Concerns'},{id:'announcements',icon:'ti-news',lbl:'Announce'}]
 };
 
@@ -920,6 +947,8 @@ function rDashSecurity(){
   const allV=P.flatMap(x=>x.vehicles.filter(v=>v.status==='active'&&v.plate&&v.plate!=='NA'));
   const activeVS=VS.filter(x=>x.status==='active'&&!xp(x.exp));
   const openUK=UK.filter(x=>x.status==='open');
+  const openCon=CN.filter(x=>x.status==='open');
+  const myCon=CN.filter(x=>x.assignedTo===cP?.name||x.assignedTo==='');
   const rcToday=RC.find(s=>s.closed&&isSameDay(s.t,Date.now()));
   // If roll call done today, show parked status from last session
   const lastRC=RC.find(s=>s.closed);
@@ -932,21 +961,26 @@ function rDashSecurity(){
   const inWindow=h>=21&&h<23;
   return `<div class="card">
     <div style="font-size:15px;font-weight:800;color:var(--txt);margin-bottom:14px">Parking Status</div>
-    <div class="sgrid3" style="margin-bottom:12px">
-      <div class="sbox gn" style="padding:12px 8px">
-        <i class="ti ti-car sico" style="color:var(--grn2);font-size:18px"></i>
-        <div class="sval" style="color:var(--grn2);font-size:22px">${rcToday?regParked:allV.length}</div>
-        <div class="slbl" style="color:var(--grn)">Registered${rcToday?' Parked':''}</div>
+    <div class="sgrid4" style="margin-bottom:12px">
+      <div class="sbox gn" style="padding:10px 6px">
+        <i class="ti ti-car sico" style="color:var(--grn2);font-size:16px"></i>
+        <div class="sval" style="color:var(--grn2);font-size:20px">${rcToday?regParked:allV.length}</div>
+        <div class="slbl" style="color:var(--grn);font-size:9px">Registered</div>
       </div>
-      <div class="sbox am" style="padding:12px 8px">
-        <i class="ti ti-ticket sico" style="color:var(--amb);font-size:18px"></i>
-        <div class="sval" style="color:var(--amb);font-size:22px">${activeVS.length}</div>
-        <div class="slbl" style="color:var(--amb)">Visitor Pass</div>
+      <div class="sbox am" style="padding:10px 6px">
+        <i class="ti ti-ticket sico" style="color:var(--amb);font-size:16px"></i>
+        <div class="sval" style="color:var(--amb);font-size:20px">${activeVS.length}</div>
+        <div class="slbl" style="color:var(--amb);font-size:9px">Visitors</div>
       </div>
-      <div class="sbox rd" style="padding:12px 8px">
-        <i class="ti ti-alert-triangle sico" style="color:${openUK.length?'var(--red)':'var(--txt5)'};font-size:18px"></i>
-        <div class="sval" style="color:${openUK.length?'var(--red)':'var(--txt4)'};font-size:22px">${openUK.length}</div>
-        <div class="slbl" style="color:var(--red)">Unregistered</div>
+      <div class="sbox rd" style="padding:10px 6px">
+        <i class="ti ti-alert-triangle sico" style="color:${openUK.length?'var(--red)':'var(--txt5)'};font-size:16px"></i>
+        <div class="sval" style="color:${openUK.length?'var(--red)':'var(--txt4)'};font-size:20px">${openUK.length}</div>
+        <div class="slbl" style="color:var(--red);font-size:9px">Unknown</div>
+      </div>
+      <div class="sbox ${openCon.length?'am':'gn'}" style="padding:10px 6px;cursor:pointer" onclick="switchTab('concerns')">
+        <i class="ti ti-help-hexagon sico" style="color:${openCon.length?'var(--amb)':'var(--grn2)'};font-size:16px"></i>
+        <div class="sval" style="color:${openCon.length?'var(--amb)':'var(--grn2)'};font-size:20px">${openCon.length}</div>
+        <div class="slbl" style="color:${openCon.length?'var(--amb)':'var(--grn)'};font-size:9px">Concerns</div>
       </div>
     </div>
     ${rcToday?`<div class="alt agn"><i class="ti ti-circle-check" style="flex-shrink:0"></i><div><strong>Roll call done today at ${fdt(rcToday.closedAt||rcToday.t).split(' ')[1]}</strong><br><span style="font-size:12px">${rcToday.entries.length} vehicles scanned · ${unkFound} unknown found</span></div></div>`:`<div class="alt ${inWindow?'ard':'aam'}"><i class="ti ti-clipboard-list" style="flex-shrink:0"></i><div><strong>${inWindow?'Time for roll call! (9 PM – 11 PM window)':'Roll call not done today'}</strong><br><span style="font-size:12px">Tap Roll Call tab to start</span></div>${inWindow?`<button class="btn bsm brd" onclick="switchTab('rollcall')" style="flex-shrink:0;margin-left:auto">Start</button>`:''}</div>`}
@@ -1438,7 +1472,7 @@ function rConStaff(){
   // Group open by flat
   const byFlat={};
   open.forEach(c=>{if(!byFlat[c.flatNo])byFlat[c.flatNo]=[];byFlat[c.flatNo].push(c)});
-  return `<div class="shd"><div class="stl">${open.length} open concern${open.length!==1?'s':''}</div></div>
+  return `<div class="shd"><div class="stl">${open.length} open concern${open.length!==1?'s':''}</div>${cRole==='security'?`<button class="btn bsm bacc" onclick="openConMod()"><i class="ti ti-plus"></i> Raise</button>`:''}</div>
   ${open.length===0?`<div class="alt agn"><i class="ti ti-circle-check" style="flex-shrink:0"></i><span>No open concerns — all resolved</span></div>`:''}
   ${Object.entries(byFlat).map(([flat,cons])=>`
     <div style="margin-bottom:16px">
@@ -1900,6 +1934,7 @@ function doCloseUnk(id){
 
 // ═══════════════ ROLL CALL ═══════════════
 function rRollCall(){
+  normalizeRC(); // close any stale sessions before rendering
   const isStaff=cRole==='admin'||cRole==='moderator';
   const active=RC.find(s=>!s.closed)||null;
   const past=RC.filter(s=>s.closed).slice(0,10);
@@ -1907,9 +1942,10 @@ function rRollCall(){
   const inWindow=h>=21&&h<23;
   const todayDone=RC.find(s=>s.closed&&isSameDay(s.t,Date.now()));
 
-  // Only security sees the live roll call interface
-  if(active&&cRole==='security'){
-    return rRollCallLive(active);
+  // Only the device that STARTED the session sees it as "in progress"
+  const myActive=RC.find(s=>!s.closed&&s.deviceId===DEVICE_ID)||null;
+  if(myActive&&cRole==='security'){
+    return rRollCallLive(myActive);
   }
 
   return `<div class="shd"><div class="stl">Roll Call</div>${todayDone?`<span class="badge bk">Done today</span>`:''}</div>
@@ -1918,20 +1954,21 @@ function rRollCall(){
       <i class="ti ti-clipboard-list" style="font-size:48px;color:var(--blue3);display:block;margin-bottom:12px"></i>
       <div style="font-size:17px;font-weight:800;margin-bottom:6px">Parking Roll Call</div>
       <div style="font-size:13px;color:var(--txt3);margin-bottom:6px;line-height:1.7">Walk the parking area flat-by-flat.<br>Toggle each vehicle Parked / Not Parked.<br>Unknown vehicles can be logged directly.</div>
-      ${!inWindow?`<div class="alt aam" style="margin:12px 0;text-align:left"><i class="ti ti-clock" style="flex-shrink:0"></i><div style="font-size:12px"><strong>Outside the 9 PM – 11 PM window.</strong><br>Roll call flagged as out-of-window.</div></div>`:''}
-      ${todayDone?`<div class="alt agn" style="margin:12px 0;text-align:left"><i class="ti ti-circle-check" style="flex-shrink:0"></i><div style="font-size:12px">Roll call already done today at ${fdt(todayDone.closedAt||todayDone.t).split(' ')[1]}</div></div>`:''}
-      <button class="btn bacc" style="width:100%;margin-top:8px" onclick="startRollCall()"><i class="ti ti-player-play"></i> Start Roll Call</button>
+      ${!inWindow?`<div class="alt aam" style="margin:12px 0;text-align:left"><i class="ti ti-clock" style="flex-shrink:0"></i><div style="font-size:12px"><strong>Outside the 9 PM – 11 PM window.</strong><br>This roll call will be flagged as out-of-window.</div></div>`:''}
+      ${todayDone?`<div class="alt agn" style="margin:12px 0;text-align:left"><i class="ti ti-circle-check" style="flex-shrink:0"></i><div style="font-size:12px">Last done today at ${fdt(todayDone.closedAt||todayDone.t).split(' ')[1]} (${RC.filter(s=>s.closed&&isSameDay(s.t,Date.now())).length} times today)</div></div>`:''}
+      <button class="btn bacc" style="width:100%;margin-top:8px" onclick="startRollCall()"><i class="ti ti-player-play"></i> ${todayDone?'Start Another Roll Call':'Start Roll Call'}</button>
+      <div style="font-size:11px;color:var(--txt5);margin-top:8px">Up to 10 roll calls allowed per day</div>
     </div>`:''}
 
   ${isStaff?`<div class="alt abl" style="margin-bottom:12px"><i class="ti ti-info-circle" style="flex-shrink:0"></i><div style="font-size:12px">Roll call is done by security. Past and in-progress sessions appear below. Data syncs when the same device is used or when Google Sheets backend is connected.</div></div>`:''}
-  ${isStaff&&active?`<div class="card" style="border-color:var(--ambb);background:var(--ambll)">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><i class="ti ti-clock" style="font-size:22px;color:var(--amb)"></i><div><div style="font-size:14px;font-weight:800;color:var(--amb)">Roll call in progress</div><div style="font-size:12px;color:var(--txt4)">Started ${ago(active.t)} by ${active.guardName} · ${active.entries.length} vehicles listed</div></div></div>
+  ${(()=>{const anyOpen=RC.find(s=>!s.closed);return isStaff&&anyOpen?`<div class="card" style="border-color:var(--ambb);background:var(--ambll)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><i class="ti ti-clock" style="font-size:22px;color:var(--amb)"></i><div><div style="font-size:14px;font-weight:800;color:var(--amb)">Roll call in progress</div><div style="font-size:12px;color:var(--txt4)">Started ${ago(anyOpen.t)} by ${anyOpen.guardName} · ${anyOpen.entries.length} vehicles listed</div></div></div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-      <div style="text-align:center;background:var(--grnll);border:1px solid #86EFAC;border-radius:var(--r);padding:8px"><div style="font-size:18px;font-weight:800;color:var(--grn);font-family:var(--mono)">${active.entries.filter(e=>e.parked===true).length}</div><div style="font-size:10px;color:var(--grn);font-weight:700">Parked</div></div>
-      <div style="text-align:center;background:var(--redll);border:1px solid var(--redb);border-radius:var(--r);padding:8px"><div style="font-size:18px;font-weight:800;color:var(--red);font-family:var(--mono)">${active.entries.filter(e=>e.parked===false).length}</div><div style="font-size:10px;color:var(--red);font-weight:700">Not in slot</div></div>
-      <div style="text-align:center;background:var(--purll);border:1px solid var(--purb);border-radius:var(--r);padding:8px"><div style="font-size:18px;font-weight:800;color:var(--pur);font-family:var(--mono)">${(active.unknowns||[]).length}</div><div style="font-size:10px;color:var(--pur);font-weight:700">Unknown</div></div>
+      <div style="text-align:center;background:var(--grnll);border:1px solid #86EFAC;border-radius:var(--r);padding:8px"><div style="font-size:18px;font-weight:800;color:var(--grn);font-family:var(--mono)">${anyOpen.entries.filter(e=>e.parked===true).length}</div><div style="font-size:10px;color:var(--grn);font-weight:700">Parked</div></div>
+      <div style="text-align:center;background:var(--redll);border:1px solid var(--redb);border-radius:var(--r);padding:8px"><div style="font-size:18px;font-weight:800;color:var(--red);font-family:var(--mono)">${anyOpen.entries.filter(e=>e.parked===false).length}</div><div style="font-size:10px;color:var(--red);font-weight:700">Not in slot</div></div>
+      <div style="text-align:center;background:var(--purll);border:1px solid var(--purb);border-radius:var(--r);padding:8px"><div style="font-size:18px;font-weight:800;color:var(--pur);font-family:var(--mono)">${(anyOpen.unknowns||[]).length}</div><div style="font-size:10px;color:var(--pur);font-weight:700">Unknown</div></div>
     </div>
-  </div>`:''}
+  </div>`:'';})()}
 
   <!-- Summary view for admin/mod/security -->
   ${past.length?`
@@ -1961,6 +1998,9 @@ function rcSessionCard(s){
 }
 
 function startRollCall(){
+  // Max 10 roll calls per day
+  const todayCount=RC.filter(s=>s.closed&&isSameDay(s.t,Date.now())).length;
+  if(todayCount>=10){toast('Maximum 10 roll calls per day reached','am');return;}
   RC.forEach(s=>{if(!s.closed){s.closed=true;s.closedAt=Date.now()}});
   const now=new Date();const h=now.getHours();
   const outOfWindow=!(h>=21&&h<23);
@@ -1969,7 +2009,7 @@ function startRollCall(){
   const regVehicles=P.filter(p=>p.isActive&&!p.isVacant&&p.type!=='security').flatMap(p=>p.vehicles.filter(v=>v.status==='active').map(v=>({plate:v.plate&&v.plate!=='NA'?v.plate:`${VLBL[v.type]||v.type} (no plate)`,flatNo:p.flatNo,resName:p.name,type:v.type,status:'registered',parked:null,t:Date.now()})));
   const visVehicles=VS.filter(x=>x.status==='active'&&!xp(x.exp)).map(v=>({plate:v.plate,flatNo:v.flatNo,resName:'Visitor',type:v.vtype||'car',status:'visitor',parked:null,t:Date.now()}));
   entries.push(...regVehicles,...visVehicles);
-  const session={id:uid(),t:Date.now(),guardName:cP?.name||'Security',entries,unknowns:[],closed:false,closedAt:null,outOfWindow};
+  const session={id:uid(),t:Date.now(),guardName:cP?.name||'Security',deviceId:DEVICE_ID,entries,unknowns:[],closed:false,closedAt:null,outOfWindow};
   RC.unshift(session);if(RC.length>20)RC=RC.slice(0,20);
   save();render();
 }
@@ -2573,7 +2613,7 @@ function bootApp(){
   RC.forEach(s=>{
     if(!s.closed){
       // If session is older than 12 hours and not closed — auto-close it
-      if(Date.now()-s.t>12*3600000){s.closed=true;s.closedAt=s.t+1000;rcChanged=true;}
+      if(Date.now()-s.t>2*3600000){s.closed=true;s.closedAt=Date.now();rcChanged=true;}
     }
   });
   if(rcChanged)sls('pv5_rc',RC);
